@@ -2,7 +2,7 @@
 
 [![image](https://img.shields.io/pypi/v/caroa04.svg)](https://pypi.python.org/pypi/caroa04)
 
-[![See Build Status on GitHub Actions](https://github.com/supermete/caroao4/actions/workflows/python-app.yml/badge.svg)](https://github.com/supermete/caroa04/actions/workflows/python-app.yml)
+[![See Build Status on GitHub Actions](https://github.com/supermete/caroa04/actions/workflows/python-app.yml/badge.svg)](https://github.com/supermete/caroa04/actions/workflows/python-app.yml)
 
 [![Documentation Status](https://readthedocs.org/projects/caroa04/badge/?version=latest)](https://caroa04.readthedocs.io/en/latest/?version=latest)
 
