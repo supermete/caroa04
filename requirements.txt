@@ -5,3 +5,4 @@ twine==5.0.0
 ruff==0.3.5
 python-can==4.2.1
 pytest==6.2.4
+numpy==1.24.0
