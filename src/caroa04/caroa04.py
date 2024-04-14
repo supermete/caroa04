@@ -10,7 +10,7 @@ from canmessage import *
 logging.basicConfig(level=logging.INFO)
 
 __author__ = "R. Soyding"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 MSGID_DO_WRITE = 0x100
 MSGID_DO_READ = 0x200
