@@ -2,12 +2,8 @@ import threading
 import pytest
 import can
 
-try:
-    from src.caroa04.caroa04 import CaroA04, CanMessageRW, XCanSignal, MSGID_DO_READ, MSGID_DO_WRITE, MSGID_DI_READ, BOOL
-    from src.caroa04.canmessage import *
-except:
-    from caroa04 import *
-    from canmessage import *
+from src.caroa04.caroa04 import CaroA04, MSGID_DO_READ, MSGID_DO_WRITE, MSGID_DI_READ
+from src.caroa04.canmessage import *
 
 
 class VirtualDevice:
