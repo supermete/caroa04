@@ -21,7 +21,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-import caroa04
+import src.caroa04.caroa04
 
 # -- General configuration ---------------------------------------------
 
