@@ -2,10 +2,7 @@ import time
 import can
 import logging
 
-try:
-    from autotest.framework.canmessage import *
-except:
-    from canmessage import *
+from canmessage import *
 
 logging.basicConfig(level=logging.INFO)
 
@@ -208,7 +205,7 @@ class CanMessageRW(CanMessage):
             self.bus.set_filters()
 
 
-class CanIoExp1:
+class CaroA04:
     def __init__(self):
         self._node_id = DEFAULT_NODEID
         self.bus = None
@@ -300,7 +297,7 @@ class CanIoExp1:
 
 
 if __name__ == "__main__":
-    caro = CanIoExp1()
+    caro = CaroA04()
     caro.start(0xE0, 'pcan', 250000, 'PCAN_USBBUS2')
     print(caro.do1.phys)
     caro.do1.phys = True
