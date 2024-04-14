@@ -13,7 +13,7 @@ Library to control the CAROA04 CAN-IO expander device from eletechsup.
 
 ## Installation
 
-You can install \"caroa04\" via [pip]() from [PyPI]():
+You can install *caroa04* via [pip]() from [PyPI]():
 
     $ pip install caroao4
 
