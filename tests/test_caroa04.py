@@ -3,7 +3,7 @@ import pytest
 import can
 
 try:
-    from src.caroa04.caroa04 import CanIoExp1, CanMessageRW, XCanSignal, MSGID_DO_READ, MSGID_DO_WRITE, MSGID_DI_READ, BOOL
+    from src.caroa04.caroa04 import CaroA04, CanMessageRW, XCanSignal, MSGID_DO_READ, MSGID_DO_WRITE, MSGID_DI_READ, BOOL
     from src.caroa04.canmessage import *
 except:
     from caroa04 import *
@@ -102,7 +102,7 @@ class VirtualDevice:
 class TestVirtualCanIoExp1:
     @pytest.fixture(scope="class")
     def caro(self):
-        return CanIoExp1()
+        return CaroA04()
 
     @pytest.fixture(scope="class")
     def virtualdevice(self):
