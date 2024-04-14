@@ -6,8 +6,9 @@ caroa04
 .. image:: https://img.shields.io/pypi/v/caroa04.svg
         :target: https://pypi.python.org/pypi/caroa04
 
-.. image:: https://img.shields.io/travis/supermete/caroa04.svg
-        :target: https://travis-ci.com/supermete/caroa04
+.. image:: https://github.com/supermete/caroa04/actions/workflows/python-app.yml/badge.svg
+    :target: https://github.com/supermete/caroa04/actions/workflows/python-app.yml
+    :alt: See Build Status on GitHub Actions
 
 .. image:: https://readthedocs.org/projects/caroa04/badge/?version=latest
         :target: https://caroa04.readthedocs.io/en/latest/?version=latest
@@ -26,31 +27,32 @@ Library to control the CAROA04 CAN-IO expander device from eletechsup.
 Installation
 ------------
 
-You can install "caroa04" via `pip`_ from `PyPI`_::
+You can install "caroa04" via pip from PyPI:
 
     $ pip install caroao4
+
 
 Usage
 -----
 
 .. code-block:: python
 
-	from caroa04 import CaroA04
-	
-	caro = CaroA04()
+    from caroa04 import CaroA04
+
+    caro = CaroA04()
     caro.start(0xE0, 'pcan', 250000, 'PCAN_USBBUS1')  # start communication
-    
-	caro.do1.phys = True  # set do1 state to True
+
+    caro.do1.phys = True  # set do1 state to True
     print(caro.do1.phys)  # read do1 state
     print(caro.di1.phys)  # read di1 state
 
     print(caro.bitrate.phys)  # read current bitrate
     caro.bitrate.phys = 500000  # set different baudrate (will require device power cycle)
-    
-	print(caro.node_id.phys)  # read current address code
+
+    print(caro.node_id.phys)  # read current address code
     caro.node_id.phys = 0xE1  # set address code (will require device power cycle)
-    
-	caro.shutdown()  # free the bus
+
+    caro.shutdown()  # free the bus
 
 ..
 
