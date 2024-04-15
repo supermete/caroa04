@@ -3,7 +3,7 @@ import pytest
 import can
 
 from src.caroa04.caroa04 import CaroA04, MSGID_DO_READ, MSGID_DO_WRITE, MSGID_DI_READ
-from src.caroa04.canmessage import *
+from src.caroa04.canmessage import CanMessage, CanSignal, BOOL
 
 
 class VirtualDevice:

@@ -5,7 +5,7 @@ import sys
 import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent))
 
-from canmessage import *
+from canmessage import CanMessageRW, XCanSignal, BOOL, ENUM
 
 logging.basicConfig(level=logging.INFO)
 
@@ -39,177 +39,18 @@ BitrateEnum = {
 }
 
 
-class XCanSignal(CanSignal):
-    """
-    Overrides CanSignal class to send a message on the CAN when signal is being read or written.
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    @property
-    def raw(self):
-        """
-        Get raw value of the signal
-        :return: raw value of the signal
-        """
-        if self.parent is not None:
-            self.parent.read()
-
-        return self.value
-
-    @property
-    def phys(self):
-        """
-        Get physical value of the signal
-        :return: physical value of the signal
-        """
-        if self.parent is not None:
-            self.parent.read()
-
-        value = self.value
-
-        if self.type == BOOL:
-            return bool(value)
-        elif self.type == ENUM:
-            if self.value in self.enum:
-                return self.enum[self.value]
-            else:
-                return self.value
-        else:
-            if self.signed:
-                value *= float(self.factor)
-                value += self.offset
-                value &= int(f"0b{'1' * self.length}", 2)
-
-            return value
-
-    @raw.setter
-    def raw(self, value):
-        """
-        Set the raw value of the signal
-        :param value: raw value to be set
-        :return: None
-        """
-        self.value = int(value + self.offset) & int(f"0b{'1'*self.length}", 2)
-
-        if self.parent is not None:
-            self.parent.write()
-
-    @phys.setter
-    def phys(self, value):
-        """
-        Set the physical value of the signal (applies factor or enum depending on signal's type)
-        :param value: physical value to be set
-        :return: None
-        """
-        if self.type == ENUM:
-            if value in self.enum.values():
-                for key in self.enum:
-                    if self.enum[key] == value:
-                        self.value = key
-                        break
-                else:
-                    return  # don't send anything if value is not valid
-        else:
-            if self.signed:
-                if self.length <= 8:
-                    value = numpy.uint8(round(value / float(self.factor)))
-                elif self.length <= 16:
-                    value = numpy.uint16(round(value / float(self.factor)))
-                elif self.length <= 32:
-                    value = numpy.uint32(round(value / float(self.factor)))
-                elif self.length <= 64:
-                    value = numpy.uint64(round(value / float(self.factor)))
-                self.value = ((value + self.offset) & int(f"0b{'1' * self.length}", 2))
-            else:
-                self.value = round((int(value / float(self.factor)) + self.offset) & int(f"0b{'1' * self.length}", 2))
-
-        if self.parent is not None:
-            self.parent.write()
-
-
-class CanMessageRW(CanMessage):
-    """
-    Overrides CanMessage class to use a different arbitration ID for reading and writing and actually handling
-    read and writes using the provided bus instance.
-    Includes a command byte support, where the first byte of the payload can be set to a specific value everytime a
-    signal read or write operation is requested.
-    """
-    def __init__(self, node_id, read_id, write_id, **kwargs):
-        self.bus = kwargs.pop('bus', None)
-        self.rx_cmd_byte = kwargs.pop('rx_cmd_byte', None)
-        self.tx_cmd_byte = kwargs.pop('tx_cmd_byte', None)
-        self.cmd_byte = None
-        self.read_id = read_id | node_id
-        self.write_id = write_id | node_id
-        self._node_id = node_id
-        super().__init__(0, **kwargs)
-
-        if self.rx_cmd_byte is not None and self.tx_cmd_byte is not None:
-            self.cmd_byte = CanSignal(startbit=0, length=8)
-            self.add(self.cmd_byte)
-
-    @property
-    def node_id(self):
-        return self._node_id
-
-    @node_id.setter
-    def node_id(self, value):
-        self.read_id = (self.read_id & 0x700) | value
-        self.write_id = (self.write_id & 0x700) | value
-        self._node_id = value
-
-    def write(self):
-        """
-        Sends message with the write identifier.
-        :return: None
-        """
-        if self.bus is not None:
-            logging.debug(f"Sending message {self.write_id:#x}")
-
-            if self.cmd_byte is not None:
-                self.cmd_byte.raw = self.tx_cmd_byte
-
-            message = can.Message(arbitration_id=self.write_id,
-                                  data=self.payload,
-                                  is_extended_id=self.is_extended)
-            logging.debug(message)
-            self.bus.send(message)
-
-            self.bus.set_filters([{"can_id": self.write_id, "can_mask": 0x7ff, "extended": False}])
-            sts = self.bus.recv(5)
-            if sts is not None and sts.arbitration_id == self.write_id and sts.dlc > 0:
-                self.update_payload(sts.data)
-            else:
-                logging.warning('Could not get a response from the device')
-            self.bus.set_filters()
-
-    def read(self):
-        """
-        Sends message with the read identifier and updates the signals with the received response.
-        :return: None
-        """
-        if self.bus is not None:
-            if self.cmd_byte is not None:
-                self.cmd_byte.raw = self.rx_cmd_byte
-
-            message = can.Message(arbitration_id=self.read_id,
-                                  data=self.payload,
-                                  is_extended_id=self.is_extended)
-            logging.debug(message)
-            self.bus.send(message)
-
-            self.bus.set_filters([{"can_id": self.read_id, "can_mask": 0x7ff, "extended": False}])
-            sts = self.bus.recv(5)
-            if sts is not None and sts.arbitration_id == self.read_id and sts.dlc > 0:
-                logging.debug(sts)
-                self.update_payload(sts.data)
-            else:
-                logging.warning('Could not get a response from the device')
-            self.bus.set_filters()
-
-
 class CaroA04:
+    """
+    API to control the CaroA04 device from eletechsup.
+    It will basically create CanSignal instances for the user to read/write the signals supported by the device.
+    Reading/writing a signal triggers a CAN message sent to the device.
+    The response is processed by the library and the CanSignal instances are updated with the received data.
+
+    The node ID (or address code) shall be indicated when starting the communication (see start method).
+    It is, together with the bitrate, also a signal that can be set by the user. However, changing the bitrate or
+    address code will only take effect after power cyclcing the device. Then the communication needs to be stopped and
+    restarted with the new address code/bitrate.
+    """
     def __init__(self):
         self._node_id = DEFAULT_NODEID
         self.bus = None

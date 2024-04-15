@@ -2,9 +2,12 @@
 
 [![image](https://img.shields.io/pypi/v/caroa04.svg)](https://pypi.python.org/pypi/caroa04)
 
-[![See Build Status on GitHub Actions](https://github.com/supermete/caroa04/actions/workflows/python-app.yml/badge.svg)](https://github.com/supermete/caroa04/actions/workflows/python-app.yml)
+[![Python versions](https://img.shields.io/pypi/pyversions/caroa04.svg)](https://pypi.org/project/caroa04)
 
 [![Documentation Status](https://readthedocs.org/projects/caroa04/badge/?version=latest)](https://caroa04.readthedocs.io/en/latest/?version=latest)
+
+[![See Build Status on GitHub Actions](https://github.com/supermete/caroa04/actions/workflows/python-app.yml/badge.svg)](https://github.com/supermete/caroa04/actions/workflows/python-app.yml)
+
 
 Library to control the CAROA04 CAN-IO expander device from eletechsup.
 
@@ -15,7 +18,7 @@ Library to control the CAROA04 CAN-IO expander device from eletechsup.
 
 You can install *caroa04* via [pip]() from [PyPI]():
 
-    $ pip install caroao4
+    $ pip install caroa04
 
 ## Usage
 
@@ -40,7 +43,29 @@ caro.shutdown()  # free the bus
 
 ## Features
 
--   TODO
+- This library uses the python-can library to communicate with the device.
+- The device has 4 digital outputs and 4 digital inputs. Hence the signals
+can be read/written by using the attributes of the CaroA04 class:
+  - do1, do2, do3, do4 : digital output 1 to digital output 4
+  - di1, di2, di3, di4 : digital input 1 to digital input 4
+  - bitrate, node_id : bitrate and address code of the device
+- Each signal has a raw value and a physical value. For example, the device does
+not understand a bitrate in bps. It expects an enumeration that it will interpret.
+So it can either be set by writing its physical value (bitrate.phys = 250000) or by writing
+its raw value (bitrate.raw) as follows:
+  - 0: 5 kbps
+  - 1: 10 kbps
+  - 2: 20 kbps
+  - 3: 50 kbps
+  - 4: 100 kbps
+  - 5: 120 kbps
+  - 6: 200 kbps
+  - 7: 250 kbps
+  - 8: 400 kbps
+  - 9: 500 kbps
+  - 10: 800 kbps
+  - 11: 1000 kbps
+
 
 ## Credits
 
