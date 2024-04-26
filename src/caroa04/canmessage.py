@@ -359,8 +359,8 @@ class CanMessageRW(CanMessage):
 
     @node_id.setter
     def node_id(self, value):
-        self.read_id = (self.read_id & 0xFFFFFF00) | value
-        self.write_id = (self.write_id & 0xFFFFFF00) | value
+        self.read_id = (self.read_id & 0x700) | value
+        self.write_id = (self.write_id & 0x700) | value
         self._node_id = value
 
     def write(self):
@@ -379,14 +379,7 @@ class CanMessageRW(CanMessage):
                                   is_extended_id=self.is_extended)
             logging.debug(message)
             self.bus.send(message)
-
-            self.bus.set_filters([{"can_id": self.write_id, "can_mask": 0x7ff, "extended": False}])
-            sts = self.bus.recv(5)
-            if sts is not None and sts.arbitration_id == self.write_id and sts.dlc > 0:
-                self.update_payload(sts.data)
-            else:
-                logging.warning('Could not get a response from the device')
-            self.bus.set_filters()
+            self.bus.recv(1)
 
     def read(self):
         """
@@ -402,15 +395,7 @@ class CanMessageRW(CanMessage):
                                   is_extended_id=self.is_extended)
             logging.debug(message)
             self.bus.send(message)
-
-            self.bus.set_filters([{"can_id": self.read_id, "can_mask": 0x7ff, "extended": False}])
-            sts = self.bus.recv(5)
-            if sts is not None and sts.arbitration_id == self.read_id and sts.dlc > 0:
-                logging.debug(sts)
-                self.update_payload(sts.data)
-            else:
-                logging.warning('Could not get a response from the device')
-            self.bus.set_filters()
+            self.bus.recv(1)
 
 
 if __name__ == "__main__":

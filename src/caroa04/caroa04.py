@@ -54,6 +54,7 @@ class CaroA04:
     def __init__(self):
         self._node_id = DEFAULT_NODEID
         self.bus = None
+        self.notifier = None
 
         self.message_do = CanMessageRW(self._node_id, MSGID_DO_READ, MSGID_DO_WRITE, dlc=8)
         self.message_di = CanMessageRW(self._node_id, MSGID_DI_READ, MSGID_DI_READ, dlc=8)
@@ -122,32 +123,46 @@ class CaroA04:
 
         if self.bus is None:
             self.bus = can.Bus(interface=interface, channel=channel, bitrate=bitrate)
-            self.message_do.bus = self.bus
-            self.message_di.bus = self.bus
-            self.message_nodeid.bus = self.bus
-            self.message_bitrate.bus = self.bus
+            self.notifier = can.Notifier(self.bus, [self.listener], timeout=2.0)
+
+        self.message_do.bus = self.bus
+        self.message_di.bus = self.bus
+        self.message_nodeid.bus = self.bus
+        self.message_bitrate.bus = self.bus
+
+    def listener(self, msg):
+        if msg.arbitration_id in (self.message_do.read_id, self.message_do.write_id):
+            logging.debug(f"Response from caroA04> {msg}")
+            self.message_do.update_payload(msg.data)
+        elif msg.arbitration_id in (self.message_di.read_id, self.message_di.write_id):
+            logging.info(msg)
+            self.message_di.update_payload(msg.data)
+        elif msg.arbitration_id in (self.message_bitrate.read_id, self.message_bitrate.write_id):
+            logging.info(msg)
+            self.message_bitrate.update_payload(msg.data)
+        elif msg.arbitration_id in (self.message_nodeid.read_id, self.message_nodeid.write_id):
+            logging.info(msg)
+            self.message_nodeid.update_payload(msg.data)
 
     def stop(self):
-        """Stops any ongoing thread - unused"""
-        pass
+        """Stops any ongoing thread"""
+        if self.notifier is not None:
+            self.notifier.stop()
 
     def shutdown(self):
         if self.bus is not None:
             self.bus.shutdown()  # free the port
             self.bus = None
-            self.message_do.bus = None
-            self.message_di.bus = None
-            self.message_nodeid.bus = None
-            self.message_bitrate.bus = None
+        self.message_do.bus = None
+        self.message_di.bus = None
+        self.message_nodeid.bus = None
+        self.message_bitrate.bus = None
 
 
 if __name__ == "__main__":
     caro = CaroA04()
     caro.start(0xE0, 'pcan', 250000, 'PCAN_USBBUS2')
-    print(caro.do1.phys)
     caro.do1.phys = True
     print(caro.do1.phys)
-    time.sleep(0.5)
     caro.do1.phys = False
-    print(caro.do1.phys)
     caro.shutdown()
