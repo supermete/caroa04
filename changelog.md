@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [ongoing] - 2024-04-26
 ### Changed
 - Use notifier from can library to allow sharing the bus with other bus users, #7
+- Merge stop and shutdown methods, to only have a stop method to be called when stopping, #8
 
 ### Fixed
 - Fix communication when bus is set before starting , #5

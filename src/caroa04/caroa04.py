@@ -148,8 +148,6 @@ class CaroA04:
         """Stops any ongoing thread"""
         if self.notifier is not None:
             self.notifier.stop()
-
-    def shutdown(self):
         if self.bus is not None:
             self.bus.shutdown()  # free the port
             self.bus = None
@@ -165,4 +163,3 @@ if __name__ == "__main__":
     caro.do1.phys = True
     print(caro.do1.phys)
     caro.do1.phys = False
-    caro.shutdown()

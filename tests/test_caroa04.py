@@ -80,8 +80,6 @@ class VirtualDevice:
     def stop(self):
         if self.notifier is not None:
             self.notifier.stop()
-
-    def shutdown(self):
         if self.bus is not None:
             self.bus.shutdown()
             self.bus = None
@@ -105,9 +103,7 @@ class TestVirtualCanIoExp1:
         yield
 
         caro.stop()
-        caro.shutdown()
         virtualdevice.stop()
-        virtualdevice.shutdown()
 
     def test_do1(self, caro, virtualdevice):
         assert caro.do1.phys is False, "Initial value of DO1 is wrong"
