@@ -39,6 +39,8 @@ You can install "caroa04" via pip from PyPI:
 Usage
 -----
 
+You can instantiate a CaroA04 object and start it to communicate with the device as follows.
+
 .. code-block:: python
 
     from caroa04 import CaroA04
@@ -56,6 +58,27 @@ Usage
     print(caro.node_id.phys)  # read current address code
     caro.node_id.phys = 0xE1  # set address code (will require device power cycle)
 
+    caro.shutdown()  # free the bus
+
+..
+
+In order to share the bus with other participants, you can assign the bus attribute of the CaroA04 object before starting it.
+You should simply then add CaroA04's listener to the existing bus' notifier.
+
+.. code-block:: python
+
+    import canopen
+    from caroa04 import CaroA04
+
+    nw = canopen.Network()
+    nw.connect(interface='pcan', bitrate=250000, channel='PCAN_USBBUS1')
+
+
+    caro = CaroA04()
+    caro.bus = nw.bus  # use the bus already started by canopen
+    nw.notifier.add_listener(caro.listener)  # add listener so that we can receive messages
+
+    caro.start(0xE0, 'pcan')  # start communication
     caro.shutdown()  # free the bus
 
 ..
