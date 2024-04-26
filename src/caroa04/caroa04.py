@@ -123,7 +123,7 @@ class CaroA04:
 
         if self.bus is None:
             self.bus = can.Bus(interface=interface, channel=channel, bitrate=bitrate)
-            self.notifier = can.Notifier(self.bus, [self.listener])
+            self.notifier = can.Notifier(self.bus, [self.listener], timeout=2.0)
 
         self.message_do.bus = self.bus
         self.message_di.bus = self.bus
@@ -145,13 +145,14 @@ class CaroA04:
             self.message_nodeid.update_payload(msg.data)
 
     def stop(self):
-        """Stops any ongoing thread - unused"""
-        pass
+        """Stops any ongoing thread"""
+        if self.notifier is not None:
+            self.notifier.stop()
 
     def shutdown(self):
         if self.bus is not None:
             self.bus.shutdown()  # free the port
-        self.bus = None
+            self.bus = None
         self.message_do.bus = None
         self.message_di.bus = None
         self.message_nodeid.bus = None

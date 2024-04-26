@@ -1,4 +1,3 @@
-import threading
 import pytest
 import can
 
@@ -58,7 +57,7 @@ class VirtualDevice:
 
         if self.bus is None:
             self.bus = can.interface.Bus(interface='virtual')
-            self.notifier = can.Notifier(self.bus, [self.listener])
+            self.notifier = can.Notifier(self.bus, [self.listener], timeout=2.0)
 
     def listener(self, msg):
         if msg.arbitration_id == self.message_do_get.arbitration_id:
@@ -79,7 +78,8 @@ class VirtualDevice:
                                       is_extended_id=False))
 
     def stop(self):
-        pass
+        if self.notifier is not None:
+            self.notifier.stop()
 
     def shutdown(self):
         if self.bus is not None:
@@ -100,9 +100,6 @@ class TestVirtualCanIoExp1:
     def setup_teardown_class(self, caro, virtualdevice):
         """Fixture to execute asserts before and after a sccenario is run"""
         caro.start(0xE0, 'virtual')
-        virtualdevice.bus = caro.bus
-        caro.notifier.add_listener(virtualdevice.listener)
-
         virtualdevice.start(0xE0)
 
         yield
