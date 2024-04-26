@@ -43,7 +43,7 @@ caro.shutdown()  # free the bus
 
 ## Features
 
-- This library uses the python-can library to communicate with the device.
+- This library uses the python-can library to communicate with the device. Please refer to its documentation to know about all the CAN interfaces that can be used with this library (https://python-can.readthedocs.io/en/stable/)
 - The device has 4 digital outputs and 4 digital inputs. Hence the signals
 can be read/written by using the attributes of the CaroA04 class:
   - do1, do2, do3, do4 : digital output 1 to digital output 4
