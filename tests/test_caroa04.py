@@ -12,9 +12,8 @@ class VirtualDevice:
     It will respond to the messages sent by the library, and keep track of the signal's value to answer properly.
     """
     def __init__(self):
-        self._bus = None
-        self._thread = threading.Thread()
-        self._stop_thread = threading.Event()
+        self.bus = None
+        self.notifier = None
         self.message_do_set = CanMessage(MSGID_DO_WRITE)
         self.message_do_get = CanMessage(MSGID_DO_READ)
         self.message_di = CanMessage(MSGID_DI_READ)
@@ -57,42 +56,35 @@ class VirtualDevice:
         self.message_do_get.arbitration_id = (self.message_do_get.arbitration_id & 0x700) | node_id
         self.message_di.arbitration_id = (self.message_di.arbitration_id & 0x700) | node_id
 
-        if self._bus is None:
-            self._bus = can.interface.Bus(interface='virtual')
-            if not self._thread.is_alive():
-                self._stop_thread.clear()
-                self.__thread = threading.Thread(target=self._emit, daemon=True)
-                self.__thread.start()
+        if self.bus is None:
+            self.bus = can.interface.Bus(interface='virtual')
+            self.notifier = can.Notifier(self.bus, [self.listener])
 
-    def _emit(self):
-        while not self._stop_thread.is_set():
-            sts = self._bus.recv(1)
-            if sts is not None:
-                if sts.arbitration_id == self.message_do_get.arbitration_id:
-                    # read request received, respond with the last values set with message_do_set
-                    self._bus.send(can.Message(arbitration_id=self.message_do_get.arbitration_id,
-                                               data=self.message_do_set.payload,
-                                               is_extended_id=False))
-                elif sts.arbitration_id == self.message_do_set.arbitration_id:
-                    # write request received, respond with empty message
-                    self.message_do_get.update_payload(sts.data)
-                    self._bus.send(can.Message(arbitration_id=self.message_do_set.arbitration_id,
-                                               data=sts.data,
-                                               is_extended_id=False))
-                elif sts.arbitration_id == self.message_di.arbitration_id:
-                    # read DI request received, respond with the DI message
-                    self._bus.send(can.Message(arbitration_id=self.message_di.arbitration_id,
-                                               data=self.message_di.payload,
-                                               is_extended_id=False))
+    def listener(self, msg):
+        if msg.arbitration_id == self.message_do_get.arbitration_id:
+            # read request received, respond with the last values set with message_do_set
+            self.bus.send(can.Message(arbitration_id=self.message_do_get.arbitration_id,
+                                      data=self.message_do_set.payload,
+                                      is_extended_id=False))
+        elif msg.arbitration_id == self.message_do_set.arbitration_id:
+            # write request received, respond with empty message
+            self.message_do_get.update_payload(msg.data)
+            self.bus.send(can.Message(arbitration_id=self.message_do_set.arbitration_id,
+                                      data=msg.data,
+                                      is_extended_id=False))
+        elif msg.arbitration_id == self.message_di.arbitration_id:
+            # read DI request received, respond with the DI message
+            self.bus.send(can.Message(arbitration_id=self.message_di.arbitration_id,
+                                      data=self.message_di.payload,
+                                      is_extended_id=False))
 
     def stop(self):
-        self._stop_thread.set()
-        if self._thread.is_alive():
-            self._thread.join()
+        pass
 
     def shutdown(self):
-        self._bus.shutdown()
-        self._bus = None
+        if self.bus is not None:
+            self.bus.shutdown()
+            self.bus = None
 
 
 class TestVirtualCanIoExp1:
@@ -108,6 +100,9 @@ class TestVirtualCanIoExp1:
     def setup_teardown_class(self, caro, virtualdevice):
         """Fixture to execute asserts before and after a sccenario is run"""
         caro.start(0xE0, 'virtual')
+        virtualdevice.bus = caro.bus
+        caro.notifier.add_listener(virtualdevice.listener)
+
         virtualdevice.start(0xE0)
 
         yield

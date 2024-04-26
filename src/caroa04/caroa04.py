@@ -151,11 +151,11 @@ class CaroA04:
     def shutdown(self):
         if self.bus is not None:
             self.bus.shutdown()  # free the port
-            self.bus = None
-            self.message_do.bus = None
-            self.message_di.bus = None
-            self.message_nodeid.bus = None
-            self.message_bitrate.bus = None
+        self.bus = None
+        self.message_do.bus = None
+        self.message_di.bus = None
+        self.message_nodeid.bus = None
+        self.message_bitrate.bus = None
 
 
 if __name__ == "__main__":
