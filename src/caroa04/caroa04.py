@@ -105,7 +105,7 @@ class CaroA04:
             self.node_id
         )
 
-    def start(self, node_id, interface, bitrate=None, channel=None):
+    def start(self, node_id, interface=None, bitrate=None, channel=None):
         """
         Start the communication.
         :param node_id: node ID (or address code) of the device
@@ -163,3 +163,4 @@ if __name__ == "__main__":
     caro.do1.phys = True
     print(caro.do1.phys)
     caro.do1.phys = False
+    caro.stop()
