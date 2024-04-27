@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "caroa04"
-version = "1.0.1"
+version = "1.0.2"
 description = "Library to control the CAROA04 CAN-IO expander device from eletechsup."
 readme = "README.rst"
 requires-python = ">=3.8"
