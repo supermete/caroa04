@@ -132,16 +132,16 @@ class CaroA04:
 
     def listener(self, msg):
         if msg.arbitration_id in (self.message_do.read_id, self.message_do.write_id):
-            logging.debug(f"Response from caroA04> {msg}")
+            logging.debug(msg)
             self.message_do.update_payload(msg.data)
         elif msg.arbitration_id in (self.message_di.read_id, self.message_di.write_id):
-            logging.info(msg)
+            logging.debug(msg)
             self.message_di.update_payload(msg.data)
         elif msg.arbitration_id in (self.message_bitrate.read_id, self.message_bitrate.write_id):
-            logging.info(msg)
+            logging.debug(msg)
             self.message_bitrate.update_payload(msg.data)
         elif msg.arbitration_id in (self.message_nodeid.read_id, self.message_nodeid.write_id):
-            logging.info(msg)
+            logging.debug(msg)
             self.message_nodeid.update_payload(msg.data)
 
     def stop(self):
