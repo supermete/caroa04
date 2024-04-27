@@ -85,7 +85,7 @@ class VirtualDevice:
             self.bus = None
 
 
-class TestVirtualCanIoExp1:
+class TestVirtualCaroA04:
     @pytest.fixture(scope="class")
     def caro(self):
         return CaroA04()
