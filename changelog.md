@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.0.1] - 2024-04-27
+### Changed
+- In start method, interface parameter is made optional, #11
+
+### Fixed
+- Fix code snippet in documentation , #10
+
+
 ## [1.0.0] - 2024-04-26
 ### Changed
 - Use notifier from can library to allow sharing the bus with other bus users, #7
