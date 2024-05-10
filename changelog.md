@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## latest
+### Fixed
+- Read outputs at init to prevent overwriting outputs that are already active, #15
+
+
 ## [1.0.2] - 2024-04-27
 ### Changed
 - Convert logging info to debug to avoid excessive logging, #13
