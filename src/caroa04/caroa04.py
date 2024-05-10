@@ -130,6 +130,16 @@ class CaroA04:
         self.message_nodeid.bus = self.bus
         self.message_bitrate.bus = self.bus
 
+        self._init_outputs()
+
+    def _init_outputs(self):
+        """
+        To avoid overwriting the state of already set outputs, initialize by reading the current
+        state of the outputs first.
+        :return: None
+        """
+        self.message_do.read()
+
     def listener(self, msg):
         if msg.arbitration_id in (self.message_do.read_id, self.message_do.write_id):
             logging.debug(msg)
