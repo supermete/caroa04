@@ -1,6 +1,8 @@
 import numpy
 import logging
 import can
+logger = logging.getLogger(__name__)
+logger.propagate = True
 
 __author__ = "R. Soyding"
 
@@ -369,7 +371,7 @@ class CanMessageRW(CanMessage):
         :return: None
         """
         if self.bus is not None:
-            logging.debug(f"Sending message {self.write_id:#x}")
+            logger.debug(f"Sending message {self.write_id:#x}")
 
             if self.cmd_byte is not None:
                 self.cmd_byte.raw = self.tx_cmd_byte
@@ -377,7 +379,7 @@ class CanMessageRW(CanMessage):
             message = can.Message(arbitration_id=self.write_id,
                                   data=self.payload,
                                   is_extended_id=self.is_extended)
-            logging.debug(message)
+            logger.debug(message)
             self.bus.send(message)
             self.bus.recv(1)
 
@@ -393,7 +395,7 @@ class CanMessageRW(CanMessage):
             message = can.Message(arbitration_id=self.read_id,
                                   data=self.payload,
                                   is_extended_id=self.is_extended)
-            logging.debug(message)
+            logger.debug(message)
             self.bus.send(message)
             self.bus.recv(1)
 
