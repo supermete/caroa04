@@ -1,4 +1,3 @@
-import time
 import can
 import logging
 import sys
@@ -7,7 +6,8 @@ sys.path.append(str(pathlib.Path(__file__).parent))
 
 from canmessage import CanMessageRW, XCanSignal, BOOL, ENUM
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.propagate = True
 
 __author__ = "R. Soyding"
 __version__ = "1.0.3"
@@ -53,8 +53,8 @@ class CaroA04:
     """
     def __init__(self):
         self._node_id = DEFAULT_NODEID
-        self.bus = None
-        self.notifier = None
+        self._bus = None
+        self._notifier = None
 
         self.message_do = CanMessageRW(self._node_id, MSGID_DO_READ, MSGID_DO_WRITE, dlc=8)
         self.message_di = CanMessageRW(self._node_id, MSGID_DI_READ, MSGID_DI_READ, dlc=8)
@@ -121,14 +121,17 @@ class CaroA04:
         self.message_bitrate.node_id = node_id
         self.message_nodeid.node_id = node_id
 
-        if self.bus is None:
-            self.bus = can.Bus(interface=interface, channel=channel, bitrate=bitrate)
-            self.notifier = can.Notifier(self.bus, [self.listener], timeout=2.0)
+        if self._bus is None:
+            self._bus = can.ThreadSafeBus(interface=interface, channel=channel, bitrate=bitrate)
+            self._notifier = can.Notifier(self._bus, [self._listener], timeout=2.0)
+        else:
+            if self._listener not in self._notifier.listeners:
+                self._notifier.add_listener(self._listener)
 
-        self.message_do.bus = self.bus
-        self.message_di.bus = self.bus
-        self.message_nodeid.bus = self.bus
-        self.message_bitrate.bus = self.bus
+        self.message_do.bus = self._bus
+        self.message_di.bus = self._bus
+        self.message_nodeid.bus = self._bus
+        self.message_bitrate.bus = self._bus
 
         self._init_outputs()
 
@@ -140,27 +143,27 @@ class CaroA04:
         """
         self.message_do.read()
 
-    def listener(self, msg):
+    def _listener(self, msg):
         if msg.arbitration_id in (self.message_do.read_id, self.message_do.write_id):
-            logging.debug(msg)
+            logger.debug(msg)
             self.message_do.update_payload(msg.data)
         elif msg.arbitration_id in (self.message_di.read_id, self.message_di.write_id):
-            logging.debug(msg)
+            logger.debug(msg)
             self.message_di.update_payload(msg.data)
         elif msg.arbitration_id in (self.message_bitrate.read_id, self.message_bitrate.write_id):
-            logging.debug(msg)
+            logger.debug(msg)
             self.message_bitrate.update_payload(msg.data)
         elif msg.arbitration_id in (self.message_nodeid.read_id, self.message_nodeid.write_id):
-            logging.debug(msg)
+            logger.debug(msg)
             self.message_nodeid.update_payload(msg.data)
 
     def stop(self):
         """Stops any ongoing thread"""
-        if self.notifier is not None:
-            self.notifier.stop()
-        if self.bus is not None:
-            self.bus.shutdown()  # free the port
-            self.bus = None
+        if self._notifier is not None:
+            self._notifier.stop()
+        if self._bus is not None:
+            self._bus.shutdown()  # free the port
+            self._bus = None
         self.message_do.bus = None
         self.message_di.bus = None
         self.message_nodeid.bus = None
