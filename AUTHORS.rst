@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* Rodolphe Mete Soyding <r.soyding@gmail.com>
+* Rodolphe Mete Soyding <rodolphe@soyding.com>
 
 Contributors
 ------------
