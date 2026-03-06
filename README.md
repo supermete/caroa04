@@ -90,7 +90,8 @@ its raw value (bitrate.raw) as follows:
 
 ## Credits
 
-This package was created with
+- Developed by Rodolphe Mete Soyding.
+- This package was created with
 [Cookiecutter](https://github.com/audreyr/cookiecutter) and the
 [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage)
 project template.
